@@ -1,28 +1,26 @@
-document.querySelector("form").addEventListener("submit", function (e) {
-    e.preventDefault();
+function calculateMinCost() {
 
-    const input = document.getElementById("ropes").value.trim();
+    let input = document.getElementById("rope-lengths").value.trim();
 
     if (input.length === 0) {
         document.getElementById("result").innerText = "Please enter rope lengths!";
         return;
     }
 
-    // Convert comma-separated input into array of numbers
     let arr = input.split(",").map(x => Number(x.trim())).filter(x => !isNaN(x));
 
     if (arr.length === 0) {
-        document.getElementById("result").innerText = "Invalid input!";
+        document.getElementById("result").innerText = "Invalid Input!";
         return;
     }
 
     const result = minCost(arr);
     document.getElementById("result").innerText = result;
-});
+}
 
-// Function to calculate minimum cost using Min-Heap
+// Min Cost Function using Min-Heap
 function minCost(arr) {
-    // Create a Min Heap
+
     class MinHeap {
         constructor() {
             this.heap = [];
@@ -32,39 +30,37 @@ function minCost(arr) {
             this.bubbleUp();
         }
         bubbleUp() {
-            let index = this.heap.length - 1;
-            while (index > 0) {
-                let parent = Math.floor((index - 1) / 2);
-                if (this.heap[parent] <= this.heap[index]) break;
-                [this.heap[parent], this.heap[index]] = [this.heap[index], this.heap[parent]];
-                index = parent;
+            let i = this.heap.length - 1;
+            while (i > 0) {
+                let p = Math.floor((i - 1) / 2);
+                if (this.heap[p] <= this.heap[i]) break;
+                [this.heap[p], this.heap[i]] = [this.heap[i], this.heap[p]];
+                i = p;
             }
         }
         pop() {
             if (this.heap.length === 1) return this.heap.pop();
-            const min = this.heap[0];
+            let top = this.heap[0];
             this.heap[0] = this.heap.pop();
             this.bubbleDown();
-            return min;
+            return top;
         }
         bubbleDown() {
-            let index = 0;
-            const length = this.heap.length;
+            let i = 0;
+            let n = this.heap.length;
+
             while (true) {
-                let left = 2 * index + 1;
-                let right = 2 * index + 2;
-                let smallest = index;
+                let l = 2 * i + 1;
+                let r = 2 * i + 2;
+                let smallest = i;
 
-                if (left < length && this.heap[left] < this.heap[smallest]) {
-                    smallest = left;
-                }
-                if (right < length && this.heap[right] < this.heap[smallest]) {
-                    smallest = right;
-                }
-                if (smallest === index) break;
+                if (l < n && this.heap[l] < this.heap[smallest]) smallest = l;
+                if (r < n && this.heap[r] < this.heap[smallest]) smallest = r;
 
-                [this.heap[index], this.heap[smallest]] = [this.heap[smallest], this.heap[index]];
-                index = smallest;
+                if (smallest === i) break;
+
+                [this.heap[i], this.heap[smallest]] = [this.heap[smallest], this.heap[i]];
+                i = smallest;
             }
         }
         size() {
@@ -72,22 +68,18 @@ function minCost(arr) {
         }
     }
 
-    // Use Min-Heap to find minimum cost
     const heap = new MinHeap();
+    arr.forEach(x => heap.push(x));
 
-    for (let x of arr) heap.push(x);
-
-    let totalCost = 0;
+    let cost = 0;
 
     while (heap.size() > 1) {
-        let first = heap.pop();
-        let second = heap.pop();
-
-        let cost = first + second;
-        totalCost += cost;
-
-        heap.push(cost);
+        let a = heap.pop();
+        let b = heap.pop();
+        let sum = a + b;
+        cost += sum;
+        heap.push(sum);
     }
 
-    return totalCost;
+    return cost;
 }
